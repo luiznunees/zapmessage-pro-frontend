@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import PhotoUploadModal from './PhotoUploadModal';
 import MessagePreview from './MessagePreview';
+import { useContactLists } from '@/hooks/useContactLists';
 
 const ZapMessagePro = () => {
   const [message, setMessage] = useState('');
@@ -23,13 +24,8 @@ const ZapMessagePro = () => {
   const [isAILoading, setIsAILoading] = useState(false);
   const { toast } = useToast();
 
-  const contactLists = [
-    'Clientes VIP',
-    'Leads Frios',
-    'Aniversariantes',
-    'Novos Cadastros',
-    'Clientes Ativos'
-  ];
+  // Buscar listas de contatos do Supabase
+  const { data: contactLists = [], isLoading: isLoadingLists, error: listsError } = useContactLists();
 
   const handlePhotoUpload = (photoUrl: string) => {
     setAttachedPhoto(photoUrl);
@@ -83,7 +79,6 @@ const ZapMessagePro = () => {
         const result = await response.json();
         console.log("Resposta recebida do n8n:", result);
         
-        // Assumindo que o n8n retorna o texto melhorado em result.improved_text ou result.text
         const improvedText = result.improved_text || result.text || result.message;
         
         if (improvedText && improvedText !== message) {
@@ -101,7 +96,6 @@ const ZapMessagePro = () => {
       } else {
         console.error('Erro na resposta:', response.status, response.statusText);
         
-        // Fallback para texto melhorado localmente se o servidor não responder adequadamente
         const improvedText = generateImprovedText(message);
         setMessage(improvedText);
         
@@ -114,7 +108,6 @@ const ZapMessagePro = () => {
     } catch (error) {
       console.error('Erro ao obter sugestão:', error);
       
-      // Fallback para texto melhorado localmente em caso de erro
       const improvedText = generateImprovedText(message);
       setMessage(improvedText);
       
@@ -128,26 +121,18 @@ const ZapMessagePro = () => {
   };
 
   const generateImprovedText = (text: string): string => {
-    // Função de fallback para melhorar o texto localmente
-    // Evita aplicar melhorias repetidas verificando se já foram aplicadas
     if (text.includes('😊') || text.endsWith('!')) {
-      return text; // Já foi melhorado, retorna como está
+      return text;
     }
     
     let improved = text.trim();
-    
-    // Capitaliza a primeira letra
     improved = improved.charAt(0).toUpperCase() + improved.slice(1).toLowerCase();
-    
-    // Substitui saudações comuns
     improved = improved.replace(/^(ola|oi)\b/gi, 'Olá');
     
-    // Adiciona pontuação se não houver
     if (!improved.match(/[.!?]$/)) {
       improved += '!';
     }
     
-    // Adiciona emoji apenas se não houver
     if (!improved.includes('😊')) {
       improved += ' 😊';
     }
@@ -203,7 +188,6 @@ const ZapMessagePro = () => {
         description: `Mensagem será enviada para ${selectedList} em lotes de ${batchSize}.`,
       });
 
-      // Reset form
       setMessage('');
       setAttachedPhoto(null);
       setSelectedList('');
@@ -223,6 +207,15 @@ const ZapMessagePro = () => {
       setIsSending(false);
     }
   };
+
+  // Mostrar erro se houver problema ao carregar listas
+  if (listsError) {
+    toast({
+      title: "Erro",
+      description: "Falha ao carregar listas de contatos. Verifique sua conexão.",
+      variant: "destructive",
+    });
+  }
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -305,14 +298,24 @@ const ZapMessagePro = () => {
               </Label>
               <Select value={selectedList} onValueChange={setSelectedList}>
                 <SelectTrigger className="rounded-xl border-gray-600 bg-gray-700 text-white">
-                  <SelectValue placeholder="Selecione uma lista..." />
+                  <SelectValue placeholder={isLoadingLists ? "Carregando listas..." : "Selecione uma lista..."} />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-700 border border-gray-600 rounded-xl shadow-lg z-50">
-                  {contactLists.map((list) => (
-                    <SelectItem key={list} value={list} className="hover:bg-gray-600 text-white">
-                      {list}
+                  {isLoadingLists ? (
+                    <SelectItem value="loading" disabled className="text-gray-400">
+                      Carregando...
                     </SelectItem>
-                  ))}
+                  ) : contactLists.length > 0 ? (
+                    contactLists.map((list) => (
+                      <SelectItem key={list.id} value={list.Condominio || `Lista ${list.id}`} className="hover:bg-gray-600 text-white">
+                        {list.Condominio || `Lista ${list.id}`}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-lists" disabled className="text-gray-400">
+                      Nenhuma lista encontrada
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
