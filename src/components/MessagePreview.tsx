@@ -16,9 +16,9 @@ const MessagePreview: React.FC<MessagePreviewProps> = ({ message, attachedPhoto 
 
   if (!message.trim() && !attachedPhoto) {
     return (
-      <div className="bg-whatsapp-chat rounded-2xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-sm font-medium text-gray-500 mb-4">Pré-visualização da Mensagem</h3>
-        <div className="text-center text-gray-400 py-8">
+      <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-6">
+        <h3 className="text-sm font-medium text-gray-300 mb-4">Pré-visualização da Mensagem</h3>
+        <div className="text-center text-gray-500 py-8">
           <p className="text-sm">Digite uma mensagem para ver a pré-visualização</p>
         </div>
       </div>
@@ -26,8 +26,8 @@ const MessagePreview: React.FC<MessagePreviewProps> = ({ message, attachedPhoto 
   }
 
   return (
-    <div className="bg-whatsapp-chat rounded-2xl shadow-sm border border-gray-200 p-6">
-      <h3 className="text-sm font-medium text-gray-500 mb-4">Pré-visualização da Mensagem</h3>
+    <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-6">
+      <h3 className="text-sm font-medium text-gray-300 mb-4">Pré-visualização da Mensagem</h3>
       
       <div className="flex items-start gap-3">
         {/* Avatar */}

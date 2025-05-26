@@ -129,38 +129,38 @@ const ZapMessagePro = () => {
   };
 
   return (
-    <div className="min-h-screen bg-whatsapp-background">
+    <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <div className="bg-whatsapp-primaryDark text-white p-4 shadow-lg">
+      <div className="bg-gray-800 text-white p-4 shadow-lg border-b border-gray-700">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <MessageCircle className="w-8 h-8" />
+            <MessageCircle className="w-8 h-8 text-whatsapp-primary" />
             <h1 className="text-xl font-semibold">ZapMessage Pro</h1>
           </div>
           <div className="flex items-center gap-4">
-            <Settings className="w-6 h-6 cursor-pointer hover:opacity-80 transition-opacity" />
-            <History className="w-6 h-6 cursor-pointer hover:opacity-80 transition-opacity" />
+            <Settings className="w-6 h-6 cursor-pointer hover:text-whatsapp-primary transition-colors" />
+            <History className="w-6 h-6 cursor-pointer hover:text-whatsapp-primary transition-colors" />
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Message Input */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-4">
           <div className="relative">
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Digite sua mensagem..."
-              className="min-h-[120px] border-none resize-none focus:ring-0 text-base leading-relaxed"
+              className="min-h-[120px] border-none resize-none focus:ring-0 text-base leading-relaxed bg-gray-800 text-white placeholder:text-gray-400"
               style={{ fontFamily: 'Roboto, Arial, sans-serif' }}
             />
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsPhotoModalOpen(true)}
-                className="text-whatsapp-gray hover:text-whatsapp-primary transition-colors"
+                className="text-gray-300 hover:text-whatsapp-primary hover:bg-gray-700 transition-colors"
               >
                 <Paperclip className="w-5 h-5 mr-2" />
                 Anexar Foto
@@ -169,7 +169,7 @@ const ZapMessagePro = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsAIModalOpen(true)}
-                className="text-whatsapp-gray hover:text-whatsapp-primary transition-colors"
+                className="text-gray-300 hover:text-whatsapp-primary hover:bg-gray-700 transition-colors"
               >
                 <Sparkles className="w-5 h-5 mr-2" />
                 Sugestão AI
@@ -182,23 +182,23 @@ const ZapMessagePro = () => {
         <MessagePreview message={message} attachedPhoto={attachedPhoto} />
 
         {/* Send Settings */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-6">
-          <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-3">
+        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-6 space-y-6">
+          <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-3">
             Configurações de Envio
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="contact-list" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="contact-list" className="text-sm font-medium text-gray-300">
                 Enviar para lista:
               </Label>
               <Select value={selectedList} onValueChange={setSelectedList}>
-                <SelectTrigger className="rounded-xl border-gray-200">
+                <SelectTrigger className="rounded-xl border-gray-600 bg-gray-700 text-white">
                   <SelectValue placeholder="Selecione uma lista..." />
                 </SelectTrigger>
-                <SelectContent className="bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                <SelectContent className="bg-gray-700 border border-gray-600 rounded-xl shadow-lg z-50">
                   {contactLists.map((list) => (
-                    <SelectItem key={list} value={list} className="hover:bg-whatsapp-lightGray">
+                    <SelectItem key={list} value={list} className="hover:bg-gray-600 text-white">
                       {list}
                     </SelectItem>
                   ))}
@@ -207,7 +207,7 @@ const ZapMessagePro = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="batch-size" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="batch-size" className="text-sm font-medium text-gray-300">
                 Lote (mensagens):
               </Label>
               <Input
@@ -215,7 +215,7 @@ const ZapMessagePro = () => {
                 type="number"
                 value={batchSize}
                 onChange={(e) => setBatchSize(Number(e.target.value))}
-                className="rounded-xl border-gray-200"
+                className="rounded-xl border-gray-600 bg-gray-700 text-white"
                 min="1"
                 max="1000"
               />
@@ -223,39 +223,39 @@ const ZapMessagePro = () => {
           </div>
 
           <div className="space-y-4">
-            <Label className="text-sm font-medium text-gray-700">Intervalo entre envios:</Label>
+            <Label className="text-sm font-medium text-gray-300">Intervalo entre envios:</Label>
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-2">
-                <Label htmlFor="min-interval" className="text-sm text-gray-600">Entre</Label>
+                <Label htmlFor="min-interval" className="text-sm text-gray-400">Entre</Label>
                 <Input
                   id="min-interval"
                   type="number"
                   value={minInterval}
                   onChange={(e) => setMinInterval(Number(e.target.value))}
-                  className="w-20 rounded-lg border-gray-200"
+                  className="w-20 rounded-lg border-gray-600 bg-gray-700 text-white"
                   min="1"
                 />
               </div>
-              <span className="text-sm text-gray-600">e</span>
+              <span className="text-sm text-gray-400">e</span>
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
                   value={maxInterval}
                   onChange={(e) => setMaxInterval(Number(e.target.value))}
-                  className="w-20 rounded-lg border-gray-200"
+                  className="w-20 rounded-lg border-gray-600 bg-gray-700 text-white"
                   min="1"
                 />
-                <Label className="text-sm text-gray-600">segundos</Label>
+                <Label className="text-sm text-gray-400">segundos</Label>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="random-interval"
                 checked={randomInterval}
-                onCheckedChange={setRandomInterval}
+                onCheckedChange={(checked) => setRandomInterval(checked === true)}
                 className="border-whatsapp-primary data-[state=checked]:bg-whatsapp-primary"
               />
-              <Label htmlFor="random-interval" className="text-sm text-gray-700">
+              <Label htmlFor="random-interval" className="text-sm text-gray-300">
                 Intervalo aleatório
               </Label>
             </div>
