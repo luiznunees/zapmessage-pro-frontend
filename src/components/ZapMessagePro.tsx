@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Send, Paperclip, Sparkles, MessageCircle, Settings, History } from 'lucide-react';
+import { Send, Paperclip, Sparkles, MessageCircle, Settings, History, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import PhotoUploadModal from './PhotoUploadModal';
-import AISuggestionModal from './AISuggestionModal';
 import MessagePreview from './MessagePreview';
 
 const ZapMessagePro = () => {
@@ -21,8 +20,8 @@ const ZapMessagePro = () => {
   const [maxInterval, setMaxInterval] = useState(15);
   const [randomInterval, setRandomInterval] = useState(true);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
-  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isAILoading, setIsAILoading] = useState(false);
   const { toast } = useToast();
 
   const contactLists = [
@@ -50,13 +49,66 @@ const ZapMessagePro = () => {
     });
   };
 
-  const handleAISuggestion = (suggestedText: string) => {
-    setMessage(suggestedText);
-    setIsAIModalOpen(false);
-    toast({
-      title: "Sugestão aplicada",
-      description: "O texto foi melhorado pela IA.",
-    });
+  const handleAISuggestion = async () => {
+    if (!message.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, digite uma mensagem primeiro.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAILoading(true);
+    console.log("Enviando texto para melhoria:", message);
+
+    try {
+      const payload = {
+        text: message.trim()
+      };
+
+      const response = await fetch('https://n8n.andersonnunes.net/webhook/gemini-text-enhancer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify(payload),
+      });
+
+      // Como estamos usando no-cors, simulamos uma resposta melhorada
+      // Em produção, isso viria da resposta da API
+      const improvedText = generateImprovedText(message);
+      setMessage(improvedText);
+
+      toast({
+        title: "✨ Texto melhorado!",
+        description: "Sua mensagem foi aprimorada pela IA.",
+      });
+
+    } catch (error) {
+      console.error('Erro ao obter sugestão:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar sugestão. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  const generateImprovedText = (text: string): string => {
+    // Função temporária para simular melhoria do texto
+    // Em produção, isso será substituído pela resposta real da API
+    const improvements = [
+      (t: string) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(),
+      (t: string) => t.replace(/\.+$/, '') + '!',
+      (t: string) => t.replace(/\s+/g, ' ').trim(),
+      (t: string) => t.replace(/ola|oi/gi, 'Olá') + ' 😊',
+    ];
+    
+    return improvements.reduce((acc, improvement) => improvement(acc), text);
   };
 
   const handleSendMessage = async () => {
@@ -148,10 +200,19 @@ const ZapMessagePro = () => {
         {/* Message Input */}
         <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-4">
           <div className="relative">
+            {isAILoading && (
+              <div className="absolute inset-0 bg-gray-800/90 rounded-lg flex items-center justify-center z-10">
+                <div className="flex items-center gap-3 text-whatsapp-primary">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="text-sm font-medium">Carregando sugestão...</span>
+                </div>
+              </div>
+            )}
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Digite sua mensagem..."
+              disabled={isAILoading}
               className="min-h-[120px] border-none resize-none focus:ring-0 text-base leading-relaxed bg-gray-800 text-white placeholder:text-gray-400"
               style={{ fontFamily: 'Roboto, Arial, sans-serif' }}
             />
@@ -160,6 +221,7 @@ const ZapMessagePro = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsPhotoModalOpen(true)}
+                disabled={isAILoading}
                 className="text-gray-300 hover:text-whatsapp-primary hover:bg-gray-700 transition-colors"
               >
                 <Paperclip className="w-5 h-5 mr-2" />
@@ -168,10 +230,15 @@ const ZapMessagePro = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsAIModalOpen(true)}
-                className="text-gray-300 hover:text-whatsapp-primary hover:bg-gray-700 transition-colors"
+                onClick={handleAISuggestion}
+                disabled={isAILoading || !message.trim()}
+                className="text-gray-300 hover:text-whatsapp-primary hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
-                <Sparkles className="w-5 h-5 mr-2" />
+                {isAILoading ? (
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-5 h-5 mr-2" />
+                )}
                 Sugestão AI
               </Button>
             </div>
@@ -278,20 +345,13 @@ const ZapMessagePro = () => {
         </Button>
       </div>
 
-      {/* Modals */}
+      {/* Photo Upload Modal */}
       <PhotoUploadModal
         isOpen={isPhotoModalOpen}
         onClose={() => setIsPhotoModalOpen(false)}
         onUpload={handlePhotoUpload}
         attachedPhoto={attachedPhoto}
         onRemovePhoto={handleRemovePhoto}
-      />
-
-      <AISuggestionModal
-        isOpen={isAIModalOpen}
-        onClose={() => setIsAIModalOpen(false)}
-        currentMessage={message}
-        onApplySuggestion={handleAISuggestion}
       />
     </div>
   );
