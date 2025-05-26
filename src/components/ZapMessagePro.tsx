@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Send, Paperclip, Sparkles, MessageCircle, Settings, History, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -59,6 +58,11 @@ const ZapMessagePro = () => {
       return;
     }
 
+    if (isAILoading) {
+      console.log("AI já está processando, ignorando nova solicitação");
+      return;
+    }
+
     setIsAILoading(true);
     console.log("Enviando texto para melhoria:", message);
 
@@ -72,26 +76,51 @@ const ZapMessagePro = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        mode: 'no-cors',
         body: JSON.stringify(payload),
       });
 
-      // Como estamos usando no-cors, simulamos uma resposta melhorada
-      // Em produção, isso viria da resposta da API
-      const improvedText = generateImprovedText(message);
-      setMessage(improvedText);
-
-      toast({
-        title: "✨ Texto melhorado!",
-        description: "Sua mensagem foi aprimorada pela IA.",
-      });
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Resposta recebida do n8n:", result);
+        
+        // Assumindo que o n8n retorna o texto melhorado em result.improved_text ou result.text
+        const improvedText = result.improved_text || result.text || result.message;
+        
+        if (improvedText && improvedText !== message) {
+          setMessage(improvedText);
+          toast({
+            title: "✨ Texto melhorado!",
+            description: "Sua mensagem foi aprimorada pela IA.",
+          });
+        } else {
+          toast({
+            title: "Sem alterações",
+            description: "A IA não sugeriu melhorias para esta mensagem.",
+          });
+        }
+      } else {
+        console.error('Erro na resposta:', response.status, response.statusText);
+        
+        // Fallback para texto melhorado localmente se o servidor não responder adequadamente
+        const improvedText = generateImprovedText(message);
+        setMessage(improvedText);
+        
+        toast({
+          title: "⚠️ Texto melhorado (offline)",
+          description: "Usamos melhorias locais pois o servidor não respondeu adequadamente.",
+        });
+      }
 
     } catch (error) {
       console.error('Erro ao obter sugestão:', error);
+      
+      // Fallback para texto melhorado localmente em caso de erro
+      const improvedText = generateImprovedText(message);
+      setMessage(improvedText);
+      
       toast({
-        title: "Erro",
-        description: "Não foi possível gerar sugestão. Tente novamente.",
-        variant: "destructive",
+        title: "⚠️ Texto melhorado (offline)",
+        description: "Usamos melhorias locais devido a erro de conexão.",
       });
     } finally {
       setIsAILoading(false);
@@ -99,16 +128,31 @@ const ZapMessagePro = () => {
   };
 
   const generateImprovedText = (text: string): string => {
-    // Função temporária para simular melhoria do texto
-    // Em produção, isso será substituído pela resposta real da API
-    const improvements = [
-      (t: string) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(),
-      (t: string) => t.replace(/\.+$/, '') + '!',
-      (t: string) => t.replace(/\s+/g, ' ').trim(),
-      (t: string) => t.replace(/ola|oi/gi, 'Olá') + ' 😊',
-    ];
+    // Função de fallback para melhorar o texto localmente
+    // Evita aplicar melhorias repetidas verificando se já foram aplicadas
+    if (text.includes('😊') || text.endsWith('!')) {
+      return text; // Já foi melhorado, retorna como está
+    }
     
-    return improvements.reduce((acc, improvement) => improvement(acc), text);
+    let improved = text.trim();
+    
+    // Capitaliza a primeira letra
+    improved = improved.charAt(0).toUpperCase() + improved.slice(1).toLowerCase();
+    
+    // Substitui saudações comuns
+    improved = improved.replace(/^(ola|oi)\b/gi, 'Olá');
+    
+    // Adiciona pontuação se não houver
+    if (!improved.match(/[.!?]$/)) {
+      improved += '!';
+    }
+    
+    // Adiciona emoji apenas se não houver
+    if (!improved.includes('😊')) {
+      improved += ' 😊';
+    }
+    
+    return improved;
   };
 
   const handleSendMessage = async () => {
