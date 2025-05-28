@@ -25,6 +25,7 @@ const ZapMessagePro = () => {
   const [isSending, setIsSending] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
   const [isWhatsAppPopupOpen, setIsWhatsAppPopupOpen] = useState(false);
+  const [whatsappConnectionStatus, setWhatsappConnectionStatus] = useState<'connected' | 'disconnected' | 'about-to-disconnect'>('disconnected');
   const { toast } = useToast();
 
   // Buscar listas de contatos do Supabase
@@ -236,6 +237,7 @@ const ZapMessagePro = () => {
             <WhatsAppConnectionPopup 
               isOpen={isWhatsAppPopupOpen}
               onOpenChange={setIsWhatsAppPopupOpen}
+              connectionStatus={whatsappConnectionStatus}
             />
             <Settings className="w-6 h-6 cursor-pointer hover:text-whatsapp-primary transition-colors" />
             <History className="w-6 h-6 cursor-pointer hover:text-whatsapp-primary transition-colors" />

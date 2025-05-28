@@ -7,18 +7,57 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 interface WhatsAppConnectionPopupProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  connectionStatus?: 'connected' | 'disconnected' | 'about-to-disconnect';
 }
 
-const WhatsAppConnectionPopup = ({ isOpen, onOpenChange }: WhatsAppConnectionPopupProps) => {
+const WhatsAppConnectionPopup = ({ 
+  isOpen, 
+  onOpenChange, 
+  connectionStatus = 'disconnected' 
+}: WhatsAppConnectionPopupProps) => {
+  
+  const getStatusConfig = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return {
+          text: 'Conectado',
+          borderColor: 'border-green-500',
+          textColor: 'text-green-400',
+          bgColor: 'hover:bg-green-500/10'
+        };
+      case 'about-to-disconnect':
+        return {
+          text: 'Prestes a Desconectar',
+          borderColor: 'border-yellow-500',
+          textColor: 'text-yellow-400',
+          bgColor: 'hover:bg-yellow-500/10'
+        };
+      default:
+        return {
+          text: 'Conectar WhatsApp',
+          borderColor: 'border-red-500',
+          textColor: 'text-red-400',
+          bgColor: 'hover:bg-red-500/10'
+        };
+    }
+  };
+
+  const statusConfig = getStatusConfig();
+
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="text-gray-300 hover:text-whatsapp-primary hover:bg-gray-700 transition-colors"
+          className={`
+            ${statusConfig.borderColor} 
+            ${statusConfig.textColor} 
+            ${statusConfig.bgColor}
+            border-2 px-4 py-2 transition-all duration-200 flex items-center gap-2
+          `}
         >
-          <Wifi className="w-6 h-6" />
+          <Wifi className="w-4 h-4" />
+          <span className="text-sm font-medium">{statusConfig.text}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent 
