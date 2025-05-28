@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contatos: {
+        Row: {
+          criado_em: string | null
+          id: string
+          nome: string | null
+          tags: string[] | null
+          telefone: string
+        }
+        Insert: {
+          criado_em?: string | null
+          id?: string
+          nome?: string | null
+          tags?: string[] | null
+          telefone: string
+        }
+        Update: {
+          criado_em?: string | null
+          id?: string
+          nome?: string | null
+          tags?: string[] | null
+          telefone?: string
+        }
+        Relationships: []
+      }
       instagram_targets: {
         Row: {
           created_at: string | null
@@ -155,6 +179,108 @@ export type Database = {
           Ultimo_Envio?: string | null
         }
         Relationships: []
+      }
+      listas: {
+        Row: {
+          criado_em: string | null
+          descricao: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          criado_em?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          criado_em?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      listas_contatos: {
+        Row: {
+          id: string
+          id_contato: string | null
+          id_lista: string | null
+        }
+        Insert: {
+          id?: string
+          id_contato?: string | null
+          id_lista?: string | null
+        }
+        Update: {
+          id?: string
+          id_contato?: string | null
+          id_lista?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listas_contatos_id_contato_fkey"
+            columns: ["id_contato"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listas_contatos_id_lista_fkey"
+            columns: ["id_lista"]
+            isOneToOne: false
+            referencedRelation: "listas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mensagens_enviadas: {
+        Row: {
+          canal: string | null
+          enviado_em: string | null
+          id: string
+          id_contato: string | null
+          id_fluxo_n8n: string | null
+          id_lista: string | null
+          mensagem: string
+          status: string | null
+        }
+        Insert: {
+          canal?: string | null
+          enviado_em?: string | null
+          id?: string
+          id_contato?: string | null
+          id_fluxo_n8n?: string | null
+          id_lista?: string | null
+          mensagem: string
+          status?: string | null
+        }
+        Update: {
+          canal?: string | null
+          enviado_em?: string | null
+          id?: string
+          id_contato?: string | null
+          id_fluxo_n8n?: string | null
+          id_lista?: string | null
+          mensagem?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_enviadas_id_contato_fkey"
+            columns: ["id_contato"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_enviadas_id_lista_fkey"
+            columns: ["id_lista"]
+            isOneToOne: false
+            referencedRelation: "listas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {

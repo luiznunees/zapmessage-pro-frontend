@@ -9,6 +9,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import PhotoUploadModal from './PhotoUploadModal';
 import MessagePreview from './MessagePreview';
+import WhatsAppConnectionPopup from './WhatsAppConnectionPopup';
+import Navigation from './Navigation';
 import { useContactLists } from '@/hooks/useContactLists';
 
 const ZapMessagePro = () => {
@@ -22,6 +24,7 @@ const ZapMessagePro = () => {
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
+  const [isWhatsAppPopupOpen, setIsWhatsAppPopupOpen] = useState(false);
   const { toast } = useToast();
 
   // Buscar listas de contatos do Supabase
@@ -222,11 +225,18 @@ const ZapMessagePro = () => {
       {/* Header */}
       <div className="bg-gray-800 text-white p-4 shadow-lg border-b border-gray-700">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <MessageCircle className="w-8 h-8 text-whatsapp-primary" />
-            <h1 className="text-xl font-semibold">ZapMessage Pro</h1>
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-3">
+              <MessageCircle className="w-8 h-8 text-whatsapp-primary" />
+              <h1 className="text-xl font-semibold">ZapMessage Pro</h1>
+            </div>
+            <Navigation />
           </div>
           <div className="flex items-center gap-4">
+            <WhatsAppConnectionPopup 
+              isOpen={isWhatsAppPopupOpen}
+              onOpenChange={setIsWhatsAppPopupOpen}
+            />
             <Settings className="w-6 h-6 cursor-pointer hover:text-whatsapp-primary transition-colors" />
             <History className="w-6 h-6 cursor-pointer hover:text-whatsapp-primary transition-colors" />
           </div>
