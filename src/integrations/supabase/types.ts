@@ -282,6 +282,21 @@ export type Database = {
           },
         ]
       }
+      "ROTINA ANDERSON": {
+        Row: {
+          Atividade: string | null
+          Dia: string | null
+        }
+        Insert: {
+          Atividade?: string | null
+          Dia?: string | null
+        }
+        Update: {
+          Atividade?: string | null
+          Dia?: string | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string | null
