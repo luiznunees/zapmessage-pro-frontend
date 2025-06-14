@@ -1,67 +1,23 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Bell, AlertTriangle, CheckCircle, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useNotificationsContext } from '@/contexts/NotificationsContext';
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: '1',
-      type: 'reconnection_expired',
-      title: 'Reconexão Expirada',
-      message: 'A tentativa de reconexão da Instância 01 expirou. É necessário tentar novamente.',
-      instanceId: 'inst_001',
-      instanceName: 'Instância 01',
-      timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutos atrás
-      isRead: false
-    },
-    {
-      id: '2',
-      type: 'campaign_completed',
-      title: 'Campanha Finalizada',
-      message: 'O disparo para "Condominios Centro" foi concluído com sucesso. 147 de 150 mensagens entregues.',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 horas atrás
-      isRead: true
-    },
-    {
-      id: '3',
-      type: 'reconnection_expired',
-      title: 'Reconexão Expirada', 
-      message: 'A tentativa de reconexão da Instância 03 expirou. É necessário tentar novamente.',
-      instanceId: 'inst_003',
-      instanceName: 'Instância 03',
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 horas atrás
-      isRead: false
-    }
-  ]);
-
-  const handleMarkAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === notificationId
-          ? { ...notif, isRead: true }
-          : notif
-      )
-    );
-  };
-
-  const handleMarkAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notif => ({ ...notif, isRead: true }))
-    );
-  };
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    dismiss,
+  } = useNotificationsContext();
 
   const handleTryReconnect = (instanceId: string) => {
     // Implementar lógica de reconexão
     console.log('Tentando reconectar instância:', instanceId);
-  };
-
-  const handleDismiss = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.filter(notif => notif.id !== notificationId)
-    );
   };
 
   const getNotificationIcon = (type: string) => {
@@ -99,8 +55,6 @@ const Notifications = () => {
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -118,7 +72,7 @@ const Notifications = () => {
           )}
           <Button
             variant="outline"
-            onClick={handleMarkAllAsRead}
+            onClick={markAllAsRead}
             disabled={unreadCount === 0}
           >
             Marcar todas como lidas
@@ -162,7 +116,7 @@ const Notifications = () => {
                     </span>
                     
                     <div className="flex items-center gap-2">
-                      {notification.type === 'reconnection_expired' && (
+                      {notification.type === 'reconnection_expired' && notification.instanceId && (
                         <Button
                           onClick={() => handleTryReconnect(notification.instanceId!)}
                           size="sm"
@@ -177,7 +131,7 @@ const Notifications = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleMarkAsRead(notification.id)}
+                          onClick={() => markAsRead(notification.id)}
                         >
                           Marcar como lida
                         </Button>
@@ -186,7 +140,7 @@ const Notifications = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDismiss(notification.id)}
+                        onClick={() => dismiss(notification.id)}
                         className="text-gray-400 hover:text-red-600"
                       >
                         <X className="w-4 h-4" />

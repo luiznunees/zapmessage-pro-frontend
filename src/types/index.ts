@@ -51,3 +51,14 @@ export interface ScheduledMessage {
   scheduledFor: string;
   status: 'scheduled' | 'sent' | 'cancelled';
 }
+
+export interface Notification {
+  id: string;
+  type: 'reconnection_expired' | 'campaign_completed' | 'info';
+  title: string;
+  message: string;
+  instanceId?: string;
+  instanceName?: string;
+  timestamp: Date;
+  isRead: boolean;
+}

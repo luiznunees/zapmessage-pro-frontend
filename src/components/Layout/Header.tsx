@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { ChevronDown, Wifi, WifiOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronDown, Wifi, WifiOff, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Select, 
@@ -11,6 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Instance } from '@/types';
 import { QRConnectionModal } from '../Connection/QRConnectionModal';
+import { useNotificationsContext } from '@/contexts/NotificationsContext';
 
 interface HeaderProps {
   instances: Instance[];
@@ -26,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
   onReconnect
 }) => {
   const [showQRModal, setShowQRModal] = useState(false);
+  const { unreadCount } = useNotificationsContext();
 
   const handleConnect = () => {
     setShowQRModal(true);
@@ -100,6 +103,18 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               </div>
             )}
+            
+            {/* Ícone de Notificações */}
+            <Link to="/notifications" className="relative">
+              <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
+                <Bell className="h-5 w-5 text-gray-600" />
+              </Button>
+              {unreadCount > 0 && (
+                <div className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white border-2 border-white">
+                  {unreadCount}
+                </div>
+              )}
+            </Link>
           </div>
         </div>
       </header>
